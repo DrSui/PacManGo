@@ -22,7 +22,7 @@ class Character:
                 self.speed *= self.attacks[attackIndex]["effect"][1]
             elif effect == "strength":
                 self.strength *= self.attack[attackIndex]["effect"][1]
-            #add more if needed
+             # add more if needed
         elif attackType == "debuff":
             effect = self.attacks[attackIndex]["effect"][0]
             if effect == "speed":
@@ -46,6 +46,15 @@ class User(Character):
     def __init__(self, name, speed, stamina, strength, hp, attack, defence, attacks):
         super().__init__(name, speed, stamina, strength, hp, attack, defence, attacks)
         self.max_hp = hp
+    def getLiveUser():
+        with open("user-live.json", "r") as f:
+            d = json.load(f)
+            f.close()
+            return User(d["name"], d["speed"], d["stamina"], d["strength"], d["hp"], d["attack"], d["deffense"], d["attacks"])
+    def saveLiveUser(self):
+        with open("user-live.json", "w") as f:
+            json.dump(self.name, self.speed, self.stamina, self.strength, self.hp, self.attack, self.defence, self.attacks)
+            f.close()
     def level_up(self):
         # Check if the user's HP is greater than 0 after defeating the enemy
         if self.hp > 0:
@@ -82,22 +91,14 @@ def reset_enemies():
         MRbrown = Character("MrBrown",12,15,60,100,35,25,data["MrBrown"])
         return [MRpriestley,MRbrown]
 
-def getLiveUser():
-    with open("user-live.json", "r") as f:
-        d = json.load(f)
-        return User(d["name"], d["speed"], d["stamina"], d["strength"], d["hp"], d["attack"], d["deffense"], d["attacks"])
-
-
 name = input("enter the name for you charcter: ")
 def combat_execution():
     #MRsmith = Character()
-    enemies = reset_enemies()
     
-    print("Welcome to the combat game!")
+    print("me to the combat game!")
     with open("user-live.json", "r") as f:
         data = json.load(f)
         user = User("user", 11, 13, 100, 100, 10, 10, data) # reset attacks to live version of user
-    while True:
         print("Press Enter to start the battle...")
         input()
         print("User Status:")
@@ -107,8 +108,10 @@ def combat_execution():
         user.hp = user.max_hp
         print(f"HP: {user.hp}")
         print()
-
+    while True:
+        enemies = reset_enemies()
         for index in range(len(enemies)):
+            user.saveLiveUser()
             print(index)
             enemy = enemies[index]
             print(len(enemy.attacks))
@@ -133,6 +136,7 @@ def combat_execution():
                         enemy.attackEnemy(user, str(random.randint(1,len(enemy.attacks))))
 
             if user.hp > 0:
+                user = user.getLiveUser()
                 user.level_up()
                 if index<len(enemies)+1:
                     print(f"You have leveled up to face {enemies[index+1].name}!")
@@ -140,6 +144,7 @@ def combat_execution():
                     print("Congratulations! You defeated all enemies and completed the game!")
                     break
             else:
+                user = user.getLiveUser()
                 print("You were defeated.")
                 choice = input("Would you like to battle again or train at the gym? (battle/train/end): ").lower()
                 if choice == "battle":
