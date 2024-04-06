@@ -50,7 +50,7 @@
         },
         "2":{
             "name": "special_checkmate",
-            "description": "HAHAHAA.... I took ur queen. Give up now!!",
+            "description": "HAHAHAA.... I took ur king. Give up now!!",
             "type": "debuff",
             "dmg": 50,
             "effect": ["hp", 0.5]         
