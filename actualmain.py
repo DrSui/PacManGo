@@ -1,6 +1,6 @@
 import random
 import json
-
+from jsonFormatter import format
 class Character:
     def __init__(self, name, speed, stamina, strength, hp, attack, defence, attacks):
         self.name = name
@@ -40,21 +40,21 @@ class Character:
     
         print(f"{self.name} uses {self.attacks[attackIndex]['name']}! {self.attacks[attackIndex]['description']}")
         enemy.hp -= self.attacks[attackIndex]["dmg"]
-
-
 class User(Character):
-    def __init__(self, name, speed, stamina, strength, hp, attack, defence, attacks):
+    def __init__(self, name, speed, stamina, strength, hp, attack, defence, attacks, attacks_disabled):
         super().__init__(name, speed, stamina, strength, hp, attack, defence, attacks)
-        self.max_hp = hp
+        self.attacks_disabled = attacks_disabled
     def getLiveUser():
         with open("user-live.json", "r") as f:
             d = json.load(f)
             f.close()
-            return User(d["name"], d["speed"], d["stamina"], d["strength"], d["hp"], d["attack"], d["deffense"], d["attacks"])
+            return User(d["name"], d["speed"], d["stamina"], d["strength"], d["hp"], d["attack"], d["defence"], d["attacks"], d["attacks_disabled"])
     def saveLiveUser(self):
         with open("user-live.json", "w") as f:
-            json.dump(self.name, self.speed, self.stamina, self.strength, self.hp, self.attack, self.defence, self.attacks)
+            tempDict = format(self.name, self.speed, self.stamina, self.strength, self.hp, self.attack, self.defence, self.attacks, self.attacks_disabled)
+            json.dump(tempDict, f)
             f.close()
+        print("user data saved")
     def level_up(self):
         # Check if the user's HP is greater than 0 after defeating the enemy
         if self.hp > 0:
@@ -63,8 +63,7 @@ class User(Character):
             self.strength += 5
             self.speed = self.speed_original  # Reset speed
             # Reset HP
-            self.max_hp += 20
-            self.hp = self.max_hp
+            self.hp += 20
             # Return the next enemy to face
         else:
             return None
@@ -79,7 +78,7 @@ class User(Character):
             self.stamina += 10
             print("You've improved your stamina and increased the rate of dodging!")
         elif u == 3:
-            self.max_hp += 5
+            self.hp += 5
             print("You've improved your HP!")
         elif u == 4:
             self.speed += 5
@@ -91,23 +90,37 @@ def reset_enemies():
         MRbrown = Character("MrBrown",12,15,60,100,35,25,data["MrBrown"])
         return [MRpriestley,MRbrown]
 
-name = input("enter the name for you charcter: ")
-def combat_execution():
+def create_new_user():
+    name = input("Enter the name for your character: ")
+    # default attacks probably change soon 
+    attacks = {
+        "1": {"name": "jab", "description": "its a jab", "type": "basic", "dmg": 50},
+        "2": {"name": "cross", "description": "its a jab but sideways", "type": "basic", "dmg": 12},
+        "3": {"name": "hook", "description": "its a jab but sideways the quick way", "type": "basic", "dmg": 12},
+        "4": {"name": "body shot", "description": "its a jab but low", "type": "basic", "dmg": 14},
+
+    }
+    attacks_disabled = { 
+        "1": {"name": "uppercut", "description": "its a jab but vertical", "type": "basic", "dmg": 18},
+        "2": {"name": "dodge", "type": "dodge", "dmg": 0}
+    }
+    user = User(name, 11, 13, 100, 100, 10, 10, attacks, attacks_disabled) # reset attacks to live version of user
+    user.saveLiveUser()
+    return user
+
+def combat_execution(user):
     #MRsmith = Character()
     
     print("me to the combat game!")
-    with open("user-live.json", "r") as f:
-        data = json.load(f)
-        user = User("user", 11, 13, 100, 100, 10, 10, data) # reset attacks to live version of user
-        print("Press Enter to start the battle...")
-        input()
-        print("User Status:")
-        print(f"Speed: {user.speed}")
-        print(f"Stamina: {user.stamina}")
-        print(f"Strength: {user.strength}")
-        user.hp = user.max_hp
-        print(f"HP: {user.hp}")
-        print()
+    user = User.getLiveUser()
+    print("Press Enter to start the battle...")
+    input()
+    print("User Status:")
+    print(f"Speed: {user.speed}")
+    print(f"Stamina: {user.stamina}")
+    print(f"Strength: {user.strength}")
+    print(f"HP: {user.hp}")
+    print()
     while True:
         enemies = reset_enemies()
         for index in range(len(enemies)):
@@ -121,24 +134,24 @@ def combat_execution():
                 print(f"{enemy.name} has {enemy.hp} HP.")
                 print(f"{user.name} has {user.hp} HP.")
                 for i in range(1,len(user.attacks)+1):
-                    print(f"({i}). {user.attacks[i]['name']} - {user.attacks[i]['dmg']}")
+                    print(f"({i}). {user.attacks[f'{i}']['name']} - {user.attacks[f'{i}']['dmg']}")
                 u = int(input("enter the attack number you want to use"))
                 # Determine who goes first based on speed
                 if enemy.speed >= user.speed:
                     print("The enemy has the initiative and goes first!")
-                    enemy.attackEnemy(user, str(random.randint(1,str(len(enemy.attacks)))))
+                    enemy.attackEnemy(user, str(random.randint(1,len(enemy.attacks))))
                     if user.hp > 0:
-                        user.attackEnemy(enemy,u)
+                        user.attackEnemy(enemy,str(u))
                 else:
                     print("You have the initiative and go first!")
-                    user.attackEnemy(enemy, u)
+                    user.attackEnemy(enemy, str(u))
                     if enemy.hp > 0:
                         enemy.attackEnemy(user, str(random.randint(1,len(enemy.attacks))))
 
             if user.hp > 0:
-                user = user.getLiveUser()
+                user = User.getLiveUser()
                 user.level_up()
-                if index<len(enemies)+1:
+                if index<len(enemies)-1:
                     print(f"You have leveled up to face {enemies[index+1].name}!")
                 else:
                     print("Congratulations! You defeated all enemies and completed the game!")
@@ -166,6 +179,7 @@ def combat_execution():
             break
 
 if __name__ == "__main__":
-    combat_execution()
-
+    global user
+    user = create_new_user()
+    combat_execution(user)
 
