@@ -1,6 +1,9 @@
 import random
 import json
 from jsonFormatter import format
+import time
+import sys
+
 class Character:
     def __init__(self, name, speed, stamina, strength, hp, attack, defence, attacks):
         self.name = name
@@ -97,6 +100,26 @@ class User(Character):
             print("swapped succesfully")
         except(e):
             print("error , follow the correct format")
+    def attackLoop(self, enemy):
+        while self.hp > 0 and enemy.hp > 0:
+            print(f"{enemy.name} has {enemy.hp} HP.")
+            print(f"{self.name} has {self.hp} HP.")
+            for i in range(1,len(self.attacks)+1):
+                print(f"({i}). {self.attacks[f'{i}']['name']} - {self.attacks[f'{i}']['dmg']}")
+            u = int(input("enter the attack number you want to use"))
+            # Determine who goes first based on speed
+            if enemy.speed >= self.speed:
+                print("The enemy has the initiative and goes first!")
+                enemy.attackEnemy(self, str(random.randint(1,len(enemy.attacks))))
+                if user.hp > 0:
+                    user.attackEnemy(enemy,str(u))
+            else:
+                print("You have the initiative and go first!")
+                self.attackEnemy(enemy, str(u))
+                if enemy.hp > 0:
+                    enemy.attackEnemy(user, str(random.randint(1,len(enemy.attacks))))
+        self = User.getLiveUser()
+        return self.hp > enemy.hp 
 def reset_enemies():
     with open("enemies-attacks.json","r") as f:
         data = json.load(f)
@@ -123,20 +146,42 @@ def create_new_user():
     return user
 
 def combat_execution(user):
-    #MRsmith = Character()
+    # MRsmith = Character()
     print("me to the combat game!")
     user = User.getLiveUser()
-    print("Press Enter to start the battle...")
+    print("Press Enter to start...")
     input()
     print("User Status:")
     print(f"Speed: {user.speed}")
     print(f"Stamina: {user.stamina}")
     print(f"Strength: {user.strength}")
     print(f"HP: {user.hp}")
-    print()
-    user.changeAttacks() #  debugging only
+    while True: # main loop
+        match input("enter what you want to do 1. visit jamal's general store 2. fight some people from the local turkish barbers 3. boss fight"):
+            case "1":
+                option = 1
+                break
+            case "2":
+                option = 2
+                break
+            case "3":
+                option = 3
+                break
+            case _:
+                print("learn to type")
+   # user.changeAttacks() #  debugging only
     while True:
-        enemies = reset_enemies()
+        if option == 1:
+            print("work in progress... Gerald's General Store is under construction")
+            combat_execution(user)
+            break
+        elif option == 2:
+            print("its eid all the turkish barbers are closed...")
+            combat_execution(user)
+            break
+        elif option == 3:
+            enemies = reset_enemies()
+        
         for index in range(len(enemies)):
             user.saveLiveUser()
             print(index)
@@ -144,24 +189,7 @@ def combat_execution(user):
             print(len(enemy.attacks))
             print(enemy.attacks[str(1)])
             print(f"You are facing an enemy with {enemy.hp} HP.")
-            while user.hp > 0 and enemy.hp > 0:
-                print(f"{enemy.name} has {enemy.hp} HP.")
-                print(f"{user.name} has {user.hp} HP.")
-                for i in range(1,len(user.attacks)+1):
-                    print(f"({i}). {user.attacks[f'{i}']['name']} - {user.attacks[f'{i}']['dmg']}")
-                u = int(input("enter the attack number you want to use"))
-                # Determine who goes first based on speed
-                if enemy.speed >= user.speed:
-                    print("The enemy has the initiative and goes first!")
-                    enemy.attackEnemy(user, str(random.randint(1,len(enemy.attacks))))
-                    if user.hp > 0:
-                        user.attackEnemy(enemy,str(u))
-                else:
-                    print("You have the initiative and go first!")
-                    user.attackEnemy(enemy, str(u))
-                    if enemy.hp > 0:
-                        enemy.attackEnemy(user, str(random.randint(1,len(enemy.attacks))))
-
+            won = user.attackLoop(enemy)
             if user.hp > 0:
                 user = User.getLiveUser()
                 user.level_up()
@@ -196,4 +224,3 @@ if __name__ == "__main__":
     global user
     user = create_new_user()
     combat_execution(user)
-
