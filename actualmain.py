@@ -4,8 +4,49 @@ from jsonFormatter import format
 import time
 import sys
 
+def checkNoDuplicate(dict, x):
+    for i in range(1,len(dict)+1):
+        if dict[f"{i}"]["name"] == x:
+            return False
+    return True
+class GeraldsStore:
+    def __init__(self):
+        with open("gerald.json","r") as f:
+            data = json.load(f)
+            self.money = data["money"]
+            self.items = data["items"]
+            f.close()
+    def listItems(self):
+        for i in range(len(self.items)):
+            print(f"{i}: {self.items[f'{i}']['item']['name']}:  {self.items[f'{i}']['item']['description']} cost: {self.items[f'{i}']['price']}")
+    def buyFrom(self, user):
+        self.listItems() # this is pissing me off but "clean" code ig
+        print(f"your money: {user.money}")
+        u = input("enter the number you wish to buy")
+        try:
+            if user.money >= self.items[u]["price"] and checkNoDuplicate(user.attacks_disabled, self.items[u]["item"]["name"]):
+                user.money -= self.items[u]["price"] 
+                user.attacks_disabled[len(user.attacks_disabled)+1] = self.items[u]["item"]
+                del self.items[u] # comment out if testing for ability to buy items , if file gone copy from gerald-ref BUT DO NOT use as main file
+                self.saveFile()
+                user.saveLiveUser()
+                print("the fine print reads...  NO REFUNDS!!")
+                user.changeAttacks()
+            elif checkNoDuplicate(user.attacks_disabled, self.items[u]["item"]["name"]) == False:
+                print("you already own this attack")
+            else:
+                print("you are too poor to afford this item and Gerald's General Store is a premiun establishment (you got kicked out for beign homeless")
+        except Exception as e:
+            print(e)
+            print("you have failed to type a singhular nunmber.... Gerald kicked you out")
+    def saveFile(self):
+        with open("gerald.json", "w") as f:
+            json.dump({"money": self.money, "items": self.items}, f)
+            f.close()
+
 class Character:
-    def __init__(self, name, speed, stamina, strength, hp, attack, defence, attacks):
+    def __init__(self, name, speed, stamina, strength, hp, attack, defence, attacks, money=0):
+        self.money = money
         self.name = name
         self.speed = speed
         self.speed_original = speed  # Store original speed for combat system reset
@@ -44,30 +85,30 @@ class Character:
         print(f"{self.name} uses {self.attacks[attackIndex]['name']}! {self.attacks[attackIndex]['description']}")
         enemy.hp -= self.attacks[attackIndex]["dmg"]
 class User(Character):
-    def __init__(self, name, speed, stamina, strength, hp, attack, defence, attacks, attacks_disabled):
-        super().__init__(name, speed, stamina, strength, hp, attack, defence, attacks)
+    def __init__(self, name, speed, stamina, strength, hp, attack, defence, attacks, attacks_disabled, money):
+        super().__init__(name, speed, stamina, strength, hp, attack, defence, attacks,money)
         self.attacks_disabled = attacks_disabled
     def getLiveUser():
         with open("user-live.json", "r") as f:
             d = json.load(f)
             f.close()
-            return User(d["name"], d["speed"], d["stamina"], d["strength"], d["hp"], d["attack"], d["defence"], d["attacks"], d["attacks_disabled"])
+            return User(d["name"], d["speed"], d["stamina"], d["strength"], d["hp"], d["attack"], d["defence"], d["attacks"], d["attacks_disabled"], d["money"])
     def saveLiveUser(self):
         with open("user-live.json", "w") as f:
-            tempDict = format(self.name, self.speed, self.stamina, self.strength, self.hp, self.attack, self.defence, self.attacks, self.attacks_disabled)
-            json.dump(tempDict, f)
+            tempDict = format(self.name, self.speed, self.stamina, self.strength, self.hp, self.attack, self.defence, self.attacks, self.attacks_disabled, self.money)
+            json.dump(format(self.name, self.speed, self.stamina, self.strength, self.hp, self.attack, self.defence, self.attacks, self.attacks_disabled, self.money), f)
             f.close()
         print("user data saved")
     def level_up(self):
-        # Check if the user's HP is greater than 0 after defeating the enemy
+        # check if the user's hp is greater than 0 after defeating the enemy
         if self.hp > 0:
-            # Increase user's stats
+            # increase user's stats
             self.stamina += 2
             self.strength += 5
-            self.speed = self.speed_original  # Reset speed
-            # Reset HP
+            self.speed = self.speed_original  # reset speed
+            # reset hp
             self.hp += 20
-            # Return the next enemy to face
+            # return the next enemy to face
         else:
             return None
     def gym(self):
@@ -76,13 +117,13 @@ class User(Character):
             self.strength += 10
             for i in range(1,len(self.attacks)+1):
                 self.attacks[i]["dmg"] += 2
-            print("You've improved your strength and increased the damage of all your attacks!")
+            print("you've improved your strength and increased the damage of all your attacks!")
         elif u == 2:
             self.stamina += 10
-            print("You've improved your stamina and increased the rate of dodging!")
+            print("you've improved your stamina and increased the rate of dodging!")
         elif u == 3:
             self.hp += 5
-            print("You've improved your HP!")
+            print("you've improved your hp!")
         elif u == 4:
             self.speed += 5
             print("You've improved your speed!")
@@ -141,12 +182,13 @@ def create_new_user():
         "1": {"name": "uppercut", "description": "its a jab but vertical", "type": "basic", "dmg": 18},
               "2": {"name": "dodge", "description": "you dodge", "type": "dodge", "dmg": 0}
     }
-    user = User(name, 11, 13, 100, 100, 10, 10, attacks, attacks_disabled) # reset attacks to live version of user
+    user = User(name, 11, 13, 100, 100, 10, 10, attacks, attacks_disabled, 10000) # reset attacks to live version of user
     user.saveLiveUser()
     return user
 
 def combat_execution(user):
     # MRsmith = Character()
+    gerald = GeraldsStore()
     print("me to the combat game!")
     user = User.getLiveUser()
     print("Press Enter to start...")
@@ -157,7 +199,7 @@ def combat_execution(user):
     print(f"Strength: {user.strength}")
     print(f"HP: {user.hp}")
     while True: # main loop
-        match input("enter what you want to do 1. visit jamal's general store 2. fight some people from the local turkish barbers 3. boss fight"):
+        match input("enter what you want to do 1. visit Gerald's General Store 2. fight some people from the local turkish barbers 3. boss fight"):
             case "1":
                 option = 1
                 break
@@ -172,15 +214,17 @@ def combat_execution(user):
    # user.changeAttacks() #  debugging only
     while True:
         if option == 1:
-            print("work in progress... Gerald's General Store is under construction")
-            combat_execution(user)
-            break
+            #print("work in progress... Gerald's General Store is under construction")
+            #combat_execution(user)
+            gerald.buyFrom(user)
+            print(user.attacks_disabled)
         elif option == 2:
             print("its eid all the turkish barbers are closed...")
             combat_execution(user)
             break
         elif option == 3:
-            enemies = reset_enemies()
+            pass
+        enemies = reset_enemies()
         
         for index in range(len(enemies)):
             user.saveLiveUser()
