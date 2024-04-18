@@ -166,7 +166,9 @@ def reset_enemies():
         data = json.load(f)
         MRpriestley = Character("MrPriestley",10,12,50,100,30,30,data["MrPriestley"])
         MRbrown = Character("MrBrown",12,15,60,100,35,25,data["MrBrown"])
-        return [MRpriestley,MRbrown]
+        MrSmith = Character("MrSmith",30,30,100,100,100,210,data["MrSmith"])
+
+        return [MRpriestley,MRbrown, MrSmith]###mrsmith added
 
 def create_new_user():
     name = input("Enter the name for your character: ")
