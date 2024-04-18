@@ -1,0 +1,44 @@
+{
+    "MrPriestley":{
+        "1":{
+            "name": "gravity force",
+            "description": "your height decreases by 2 inches and slow down by 20%",
+            "type": "debuff",
+            "dmg": 20,
+            "effect": ["speed", 0.8]
+        },
+        "2":{
+            "name": "optic attack",
+            "description": "you now require glasses",
+            "type": "basic",
+            "dmg": 20            
+        },
+        "3":{
+            "name": "SUVAT slap",
+            "description": "you forgot to draw a free body diagram",
+            "type": "basic",
+            "dmg": 18
+        }
+    },
+    "MrBrown":{
+        "1":{
+            "name": "brute force",
+            "description": "you used qwerty123 as your password...",
+            "type": "basic",
+            "dmg": 20
+        },
+        "2":{
+            "name": "DDoS attack",
+            "description": "your database gets a backdoor, enemy damage increased by 30%",
+            "type": "buff",
+            "dmg": 20,
+            "effect": ["attack", 1.3]         
+        },
+        "3":{
+            "name": "SUVAT slap",
+            "description": "you get balckmailed with pictures of you eating pizza with pineapple",
+            "type": "basic",
+            "dmg": 20
+        }
+    }
+}

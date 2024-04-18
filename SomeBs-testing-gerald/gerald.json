@@ -1,0 +1,1 @@
+{"money": 1000, "items": {"0": {"item": {"name": "counter punch", "description": "you dodge and punch (better dodge)", "dmg": 15, "type": "dodge"}, "price": 2000}, "1": {"item": {"name": "red bull", "description": "it gives you wings ( you regen 15%)", "dmg": 0, "type": "buff", "effect": ["health", 1.15]}, "price": 1000}}}
