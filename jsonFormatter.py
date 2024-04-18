@@ -1,4 +1,4 @@
-def format(name, speed, stamina, strength, hp, attack, defence, attacks, attacks_disabled):
+def format(name, speed, stamina, strength, hp, attack, defence, attacks, attacks_disabled, money):
     character_data = {
         "name": name,
         "speed": speed,
@@ -8,6 +8,7 @@ def format(name, speed, stamina, strength, hp, attack, defence, attacks, attacks
         "attack": attack,
         "defence": defence,
         "attacks": attacks,
-        "attacks_disabled": attacks_disabled
+        "attacks_disabled": attacks_disabled,
+        "money": money
     }
     return character_data

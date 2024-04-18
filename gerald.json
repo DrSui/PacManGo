@@ -1,0 +1,1 @@
+{"money": 1000, "items": {"1": {"item": {"name": "red bull", "description": "it gives you wings ( you regen 15%)", "dmg": 0, "type": "buff", "effect": ["health", 1.15]}, "price": 1000}}}
