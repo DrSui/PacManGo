@@ -40,5 +40,28 @@
             "type": "basic",
             "dmg": 20
         }
+    }, 
+    "MrSmith":{
+        "1":{
+            "name": "inverse matrix",
+            "description": "you where caught using a calculator! NOW YOU SHALL PAY THE PRICE!!",
+            "type": "basic",
+            "dmg": 20
+        },
+        "2":{
+            "name": "EN passant",
+            "description": "your homework is seretly GONE missing ?!!?? ",
+            "type": "buff",
+            "dmg": 20,
+            "effect": ["attack", 1.3]         
+        },
+        "3":{
+            "name": "special checkmate",
+            "description": "all of your pieces have taken. MUHAHAHA!! ",
+            "type": "debuff",
+            "dmg": 20,
+            "effect": ["hp", 0.5]
+
+        }
     }
 }
